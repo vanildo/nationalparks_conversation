@@ -2,6 +2,8 @@ import ParksDatabase from '../parks';
 
 export default function discourseHandler(r) {
 
+  console.log('Resposnse: %j', r);
+
   // In this exercise, we will enable a user to get various information about the park
   // he is requesting. In order to do this we must keep track of the park name that
   // the user is talking about. Then, when a user asks for details (#tellmeabout) about
@@ -48,7 +50,33 @@ export default function discourseHandler(r) {
   // TO TEST YOUR WORK
   // Ask Watson, "Tell me about Zion"
   // OR
-  // Use e.g. Chrome Dev Tools to inspect the response payload 
+  // Use e.g. Chrome Dev Tools to inspect the response payload
 
+  console.log('Vez: %s', r.context.system.dialog_turn_counter);
+
+  if (r.context.system.dialog_turn_counter === 1) {
+    var parks = ParksDatabase.all();
+    var p = [];
+    for (var i = 0; i < parks.length; i++) {
+      console.log('Parque: %s', parks[i].name);
+      p.push(parks[i].name);
+    }
+  }
+
+  if (r.entities) {
+    for (var i = 0; i < r.entities.length; i++) {
+      console.log('entitie: %j', r.entities[i]);
+      if ( r.entities[i].entity === 'NationalParks') {
+        r.context.park = r.entities[i].value;
+      }
+    }
+  }
+
+  if (r.intents && r.intents.length > 0) {
+    var parque = ParksDatabase.byName(r.context.park);
+    r.output.park = parque;
+  }
+
+  r.context.parks = p;
   return r;
 }
